@@ -34,6 +34,7 @@ jobs:
               env:
                   SKIP_ENV_VALIDATION: "true"
                   SITE_URL: "https://gitmastery.me"
+                  GITHUB_PAGES_CUSTOM_DOMAIN: "gitmastery.me"
               run: npm run build
 
             - name: Add .nojekyll
@@ -46,7 +47,7 @@ jobs:
 
     deploy:
         environment:
-            name: github-pages
+            name: Production
             url: ${{ steps.deployment.outputs.page_url }}
         needs: build
         runs-on: ubuntu-latest
