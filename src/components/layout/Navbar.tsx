@@ -325,6 +325,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     <Button variant="ghost" size="sm" onClick={toggleMobileMenu} className="text-purple-300">
                         {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                     </Button>
+                  </div>
                 </div>
             </nav>
 
