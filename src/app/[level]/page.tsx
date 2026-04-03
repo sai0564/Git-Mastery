@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -47,7 +47,7 @@ interface FileTreeNode {
     children: Record<string, FileTreeNode>;
 }
 
-export default function LevelPage() {
+function LevelPageContent() {
     const {
         currentStage,
         currentLevel,
@@ -246,13 +246,7 @@ export default function LevelPage() {
                 syncURLWithCurrentLevel();
             }
         }
-    }, [
-        searchParams,
-        levelManager,
-        handleLevelFromUrl,
-        progressManager,
-        syncURLWithCurrentLevel,
-    ]);
+    }, [searchParams, levelManager, handleLevelFromUrl, progressManager, syncURLWithCurrentLevel]);
 
     // Sync URL after level changes (including next level)
     useEffect(() => {
@@ -563,7 +557,7 @@ export default function LevelPage() {
                                             )}
                                         </Button>
                                         {/* Modern Tooltip */}
-                                        <div className="absolute right-0 top-full z-50 mt-2 hidden rounded-lg bg-gray-900/95 px-3 py-2 text-xs text-white shadow-lg backdrop-blur-sm group-hover:block">
+                                        <div className="absolute top-full right-0 z-50 mt-2 hidden rounded-lg bg-gray-900/95 px-3 py-2 text-xs text-white shadow-lg backdrop-blur-sm group-hover:block">
                                             <div className="absolute -top-1 right-3 h-2 w-2 rotate-45 bg-gray-900/95"></div>
                                             {isAdvancedMode ? t("level.techModeOn") : t("level.storyModeOn")}
                                         </div>
@@ -655,5 +649,13 @@ export default function LevelPage() {
                 </DialogContent>
             </Dialog>
         </PageLayout>
+    );
+}
+
+export default function LevelPage() {
+    return (
+        <Suspense fallback={<TerminalSkeleton className="h-[580px]" />}>
+            <LevelPageContent />
+        </Suspense>
     );
 }

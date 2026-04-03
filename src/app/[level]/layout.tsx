@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
+import { allStages } from "~/levels";
 
 interface Props {
     params: Promise<{ level: string }>;
+}
+
+export function generateStaticParams() {
+    const stageIds = Object.values(allStages).map(stage => stage.id.toLowerCase());
+    const staticLevels = Array.from(new Set([...stageIds, "level"]));
+
+    return staticLevels.map(level => ({ level }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
