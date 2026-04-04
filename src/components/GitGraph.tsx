@@ -44,10 +44,10 @@ const HASH_CHARS = 7;   // short hash length
 const HASH_GAP = 10;    // gap between last badge and hash
 const MSG_GAP = 12;     // gap between hash and message
 const MAX_MSG_CHARS = 52;
-const AUTHOR_GAP = 20;  // gap between message and author
+const AUTHOR_GAP = 10;  // gap between message and author
 const MAX_AUTHOR_CHARS = 12;
 const DATE_GAP = 12;    // gap between author and date
-const DATE_CHARS = 10;  // "YYYY-MM-DD"
+const DATE_CHARS = 24;  // "Sat Sep 21 19:21:59 2024"
 
 function estimateRowWidth(node: { branches: string[]; message: string; isHead: boolean }, lanesWidth: number): number {
     const badgesWidth = node.branches.reduce((acc: number, b: string, bi: number) => {
@@ -164,7 +164,10 @@ export function GitGraph({ graph }: Props) {
                                 ? node.author.substring(0, MAX_AUTHOR_CHARS - 1) + "…"
                                 : node.author;
                             const dateX = authorX + MAX_AUTHOR_CHARS * CHAR_W + DATE_GAP;
-                            const date = new Date(node.timestamp).toISOString().split("T")[0]!;
+                            const _d = new Date(node.timestamp);
+                            const _p = _d.toDateString().split(' '); // ["Sat", "Sep", "21", "2024"]
+                            const _t = _d.toTimeString().split(' ')[0]!; // "19:21:59"
+                            const date = `${_p[0]} ${_p[1]} ${_p[2]} ${_t} ${_p[3]}`;
 
                             return (
                                 <>
@@ -175,10 +178,10 @@ export function GitGraph({ graph }: Props) {
                                     <text x={msgX} y={y + 4} fontSize={12} fill="#e5e4e2" fontFamily="monospace">
                                         {msg}
                                     </text>
-                                    <text x={authorX} y={y + 4} fontSize={11} fill="#6b7280" fontFamily="monospace">
+                                    <text x={authorX} y={y + 4} fontSize={11} fill="#a78bfa" fontFamily="monospace">
                                         {author}
                                     </text>
-                                    <text x={dateX} y={y + 4} fontSize={11} fill="#4b5563" fontFamily="monospace">
+                                    <text x={dateX} y={y + 4} fontSize={11} fill="#94a3b8" fontFamily="monospace">
                                         {date}
                                     </text>
                                 </>
