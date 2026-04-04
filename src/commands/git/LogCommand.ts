@@ -41,6 +41,18 @@ export class LogCommand implements Command {
         const authorFilter = getOptionValue("--author");
         const grepFilter = getOptionValue("--grep");
 
+        // --graph uses all commits across all branches, ignoring author/grep filters
+        if (showGraph) {
+            const allCommits = gitRepository.getAllCommits();
+            if (Object.keys(allCommits).length === 0) {
+                return ["No commits yet"];
+            }
+            const branchHeads = gitRepository.getBranchHeads();
+            const currentBranch = gitRepository.getCurrentBranch();
+            const graph = buildCommitGraph(allCommits, branchHeads, currentBranch);
+            return [`__GIT_GRAPH__:${JSON.stringify(graph)}`];
+        }
+
         const commits = gitRepository.getCommits();
 
         if (Object.keys(commits).length === 0) {
@@ -74,14 +86,6 @@ export class LogCommand implements Command {
         // If filters remove everything, show friendly message (mimics Git's empty result)
         if (filtered.length === 0) {
             return [];
-        }
-
-        if (showGraph) {
-            const allCommits = gitRepository.getAllCommits();
-            const branchHeads = gitRepository.getBranchHeads();
-            const currentBranch = gitRepository.getCurrentBranch();
-            const graph = buildCommitGraph(allCommits, branchHeads, currentBranch);
-            return [`__GIT_GRAPH__:${JSON.stringify(graph)}`];
         }
 
         filtered.forEach(([commitId, commit]) => {
