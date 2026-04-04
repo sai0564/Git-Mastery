@@ -4,6 +4,7 @@ export type CommitData = {
     files: string[];
     parents: string[];
     isMergeCommit?: boolean;
+    author?: string;
 };
 
 export type GraphNode = {
@@ -11,6 +12,7 @@ export type GraphNode = {
     shortId: string;
     message: string;
     timestamp: Date;
+    author: string;
     row: number;
     col: number;
     parents: string[];
@@ -165,6 +167,7 @@ export function buildCommitGraph(
         shortId: id.substring(0, 7),
         message: commits[id]?.message ?? "",
         timestamp: commits[id]?.timestamp ?? new Date(),
+        author: commits[id]?.author ?? "Unknown",
         row: rowOf[id]!,
         col: colOf[id] ?? 0,
         parents: parentOf[id] ?? [],

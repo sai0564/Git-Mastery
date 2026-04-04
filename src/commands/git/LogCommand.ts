@@ -47,9 +47,16 @@ export class LogCommand implements Command {
             if (Object.keys(allCommits).length === 0) {
                 return ["No commits yet"];
             }
+            // Enrich each commit with a pseudo-author (not stored in the model)
+            const pseudoAuthors = ["Sam", "Alex", "Taylor", "Lee"];
+            const getPseudoAuthor = (id: string) =>
+                pseudoAuthors[Math.abs(id.charCodeAt(0) || 0) % pseudoAuthors.length] ?? "Unknown";
+            const enriched = Object.fromEntries(
+                Object.entries(allCommits).map(([id, c]) => [id, { ...c, author: getPseudoAuthor(id) }])
+            );
             const branchHeads = gitRepository.getBranchHeads();
             const currentBranch = gitRepository.getCurrentBranch();
-            const graph = buildCommitGraph(allCommits, branchHeads, currentBranch);
+            const graph = buildCommitGraph(enriched, branchHeads, currentBranch);
             return [`__GIT_GRAPH__:${JSON.stringify(graph)}`];
         }
 

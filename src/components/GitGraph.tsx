@@ -43,7 +43,11 @@ const BADGE_GAP = 6;    // gap between badges
 const HASH_CHARS = 7;   // short hash length
 const HASH_GAP = 10;    // gap between last badge and hash
 const MSG_GAP = 12;     // gap between hash and message
-const MAX_MSG_CHARS = 60;
+const MAX_MSG_CHARS = 52;
+const AUTHOR_GAP = 20;  // gap between message and author
+const MAX_AUTHOR_CHARS = 12;
+const DATE_GAP = 12;    // gap between author and date
+const DATE_CHARS = 10;  // "YYYY-MM-DD"
 
 function estimateRowWidth(node: { branches: string[]; message: string; isHead: boolean }, lanesWidth: number): number {
     const badgesWidth = node.branches.reduce((acc: number, b: string, bi: number) => {
@@ -52,7 +56,9 @@ function estimateRowWidth(node: { branches: string[]; message: string; isHead: b
     }, 0);
     const hashWidth = HASH_CHARS * CHAR_W + HASH_GAP + MSG_GAP;
     const msgWidth = Math.min(node.message.length, MAX_MSG_CHARS) * CHAR_W;
-    return lanesWidth + badgesWidth + hashWidth + msgWidth + 20;
+    const authorWidth = AUTHOR_GAP + MAX_AUTHOR_CHARS * CHAR_W;
+    const dateWidth = DATE_GAP + DATE_CHARS * CHAR_W;
+    return lanesWidth + badgesWidth + hashWidth + msgWidth + authorWidth + dateWidth + 20;
 }
 
 export function GitGraph({ graph }: Props) {
@@ -153,6 +159,12 @@ export function GitGraph({ graph }: Props) {
                             const msg = node.message.length > MAX_MSG_CHARS
                                 ? node.message.substring(0, MAX_MSG_CHARS - 1) + "…"
                                 : node.message;
+                            const authorX = msgX + Math.min(node.message.length, MAX_MSG_CHARS) * CHAR_W + AUTHOR_GAP;
+                            const author = node.author.length > MAX_AUTHOR_CHARS
+                                ? node.author.substring(0, MAX_AUTHOR_CHARS - 1) + "…"
+                                : node.author;
+                            const dateX = authorX + MAX_AUTHOR_CHARS * CHAR_W + DATE_GAP;
+                            const date = new Date(node.timestamp).toISOString().split("T")[0]!;
 
                             return (
                                 <>
@@ -162,6 +174,12 @@ export function GitGraph({ graph }: Props) {
                                     </text>
                                     <text x={msgX} y={y + 4} fontSize={12} fill="#e5e4e2" fontFamily="monospace">
                                         {msg}
+                                    </text>
+                                    <text x={authorX} y={y + 4} fontSize={11} fill="#6b7280" fontFamily="monospace">
+                                        {author}
+                                    </text>
+                                    <text x={dateX} y={y + 4} fontSize={11} fill="#4b5563" fontFamily="monospace">
+                                        {date}
                                     </text>
                                 </>
                             );
