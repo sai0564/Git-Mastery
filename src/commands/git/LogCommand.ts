@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import { buildCommitGraph } from "~/lib/buildCommitGraph";
 
 export class LogCommand implements Command {
     name = "git log";
@@ -39,6 +40,25 @@ export class LogCommand implements Command {
 
         const authorFilter = getOptionValue("--author");
         const grepFilter = getOptionValue("--grep");
+
+        // --graph uses all commits across all branches, ignoring author/grep filters
+        if (showGraph) {
+            const allCommits = gitRepository.getAllCommits();
+            if (Object.keys(allCommits).length === 0) {
+                return ["No commits yet"];
+            }
+            // Enrich each commit with a pseudo-author (not stored in the model)
+            const pseudoAuthors = ["Sam", "Alex", "Taylor", "Lee"];
+            const getPseudoAuthor = (id: string) =>
+                pseudoAuthors[Math.abs(id.charCodeAt(0) || 0) % pseudoAuthors.length] ?? "Unknown";
+            const enriched = Object.fromEntries(
+                Object.entries(allCommits).map(([id, c]) => [id, { ...c, author: getPseudoAuthor(id) }])
+            );
+            const branchHeads = gitRepository.getBranchHeads();
+            const currentBranch = gitRepository.getCurrentBranch();
+            const graph = buildCommitGraph(enriched, branchHeads, currentBranch);
+            return [`__GIT_GRAPH__:${JSON.stringify(graph)}`];
+        }
 
         const commits = gitRepository.getCommits();
 
@@ -81,8 +101,7 @@ export class LogCommand implements Command {
             const author = getPseudoAuthor(commitId);
 
             if (isOneline) {
-                const graphPrefix = showGraph ? "* " : "";
-                output.push(`${graphPrefix}${shortId} ${commit.message}`);
+                output.push(`${shortId} ${commit.message}`);
             } else {
                 output.push(`commit ${commitId}`);
                 output.push(`Author: ${author}`);
